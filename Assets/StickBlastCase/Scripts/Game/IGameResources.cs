@@ -5,6 +5,7 @@ namespace StickBlastCase.Game
     public interface IGameResources
     {
         //  METHODS
-        Color   GetColor(int color);
+        Color       GetColor(int color);
+        GameObject  GetShapePrefab(int index);
     }
 }

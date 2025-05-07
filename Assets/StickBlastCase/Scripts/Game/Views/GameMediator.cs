@@ -14,7 +14,7 @@ namespace StickBlastCase.Game.Views
 
         public void OnRegister()
         {
-            _view.Initialize(this);
+            _view.Initialize(this, 3);
 
             AddListeners();
         }
