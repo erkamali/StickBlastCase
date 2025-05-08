@@ -32,6 +32,8 @@ namespace StickBlastCase.Game.Views
         
         private int _draggingObjectId;
         private Dictionary<int, IDraggableObjectView> _draggableObjects;
+        
+        private List<GridCellView> _cellsToHighlight;
 
         private IGameMediator   _gameMediator;
 
@@ -44,6 +46,8 @@ namespace StickBlastCase.Game.Views
             
             _draggingObjectId = -1;
             _draggableObjects = new Dictionary<int, IDraggableObjectView>();
+            
+            _cellsToHighlight   = new List<GridCellView>();
         }
         
         public void Clear()
@@ -81,7 +85,8 @@ namespace StickBlastCase.Game.Views
                             float x = (col * _cellSize) - offsetX;
 
                             gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            //_horizontalGaps[col, row] = gapView;
+                            
+                            _gridCells[col, row] = gridCell;
                         }
                         else // Horizontal gap
                         {
@@ -95,7 +100,8 @@ namespace StickBlastCase.Game.Views
                             float x = (col * _cellSize) - offsetX;
 
                             gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            //_horizontalGaps[col, row] = gapView;
+                            
+                            _gridCells[col, row] = gridCell;
                         }
                     }
                     else // Square row
@@ -112,7 +118,8 @@ namespace StickBlastCase.Game.Views
                             float x = (col * _cellSize) - offsetX;
 
                             gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            //_horizontalGaps[col, row] = gapView;
+                            
+                            _gridCells[col, row] = gridCell;
                         }
                         else // Square
                         {
@@ -126,7 +133,8 @@ namespace StickBlastCase.Game.Views
                             float x = (col * _cellSize) - offsetX;
 
                             gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            //_horizontalGaps[col, row] = gapView;
+                            
+                            _gridCells[col, row] = gridCell;
                         }
                     }
                 }
@@ -153,7 +161,37 @@ namespace StickBlastCase.Game.Views
         
         private void OnDragged(int draggableObjectId, PointerEventData pointerEventData)
         {
-    
+            _cellsToHighlight.Clear();
+            
+            IDraggableObjectView draggingObject = _draggableObjects[draggableObjectId];
+            foreach (GridCellView draggingObjectCell in draggingObject.GetCells())
+            {
+                if (draggingObjectCell.Shape == GridCellShapes.None)
+                {
+                    continue;
+                }
+                
+                RectTransform cellRect = draggingObjectCell.GetComponent<RectTransform>();
+                Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, cellRect.position);
+
+                GridCellView nearestGridCell = FindNearestGridCell(screenPos);
+
+                if (nearestGridCell != null)
+                {
+                    if (nearestGridCell.Shape == draggingObjectCell.Shape)
+                    {
+                        _cellsToHighlight.Add(nearestGridCell);
+                    }
+                }
+            }
+
+            Debug.Log("_cellsToHighlight.Count: " + _cellsToHighlight.Count);
+            /*
+            for (int i = 0; i < _cellsToHighlight.Count; i++)
+            {
+                Debug.Log($"Dragging cell at {i}: {_cellsToHighlight[i].name}");
+            }
+            */
         }
 
         private void OnDeselected(int draggableObjectId)
@@ -194,6 +232,40 @@ namespace StickBlastCase.Game.Views
         private int EncodeCoordinates(int col, int row)
         {
             return (_colCount * row) + col;
+        }
+        
+        private GridCellView FindNearestGridCell(Vector2 screenPosition)
+        {
+            GridCellView nearestCell = null;
+            float shortestDistance = float.MaxValue;
+
+            foreach (GridCellView gridCell in _gridCells)
+            {
+                RectTransform cellRect = gridCell.transform.gameObject.GetComponent<RectTransform>();
+
+                // Convert screen point to local position relative to the cell's parent
+                Vector2 localPoint;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    cellRect.parent as RectTransform,
+                    screenPosition,
+                    null,
+                    out localPoint
+                );
+
+                float distance = Vector2.Distance(localPoint, cellRect.anchoredPosition);
+                if (distance < shortestDistance)
+                {
+                    shortestDistance = distance;
+                    nearestCell = gridCell;
+                }
+            }
+            
+            if (shortestDistance <= _cellSize / 2f)
+            {
+                return nearestCell;
+            }
+
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,5 +16,7 @@ namespace StickBlastCase.Game.Views
         void UpdateDrag(Vector3 screenPosition);
         void CancelDrag();
         void EndDragAndPlace(IGridCellView gridCell);
+        IGridCellView GetCell(int cellIndex);
+        List<GridCellView> GetCells();
     }
 }

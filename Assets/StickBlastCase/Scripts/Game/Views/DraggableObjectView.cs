@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,8 +15,9 @@ namespace StickBlastCase.Game.Views
         //  MEMBERS
         [SerializeField] private RectTransform  _childRect;
         [SerializeField] private Image          _childImage;
+        
+        [SerializeField] private List<GridCellView> _cells;
         //      Private
-        private static readonly Vector2 DragOffset = new Vector2(0, 10f);
         private int _id;
         private Vector2 _originalPos;
         private RectTransform _rectTransform;
@@ -67,10 +69,9 @@ namespace StickBlastCase.Game.Views
         {
             _rectTransform.anchoredPosition += eventData.delta;
             
-            // Create new PointerEventData
             PointerEventData pointerData = new PointerEventData(EventSystem.current)
             {
-                position = eventData.position // Current mouse/touch position
+                position = eventData.position
             };
             
             _onDrag(_id, pointerData);
@@ -84,6 +85,16 @@ namespace StickBlastCase.Game.Views
         public void OnPointerUp(PointerEventData eventData)
         {
             _onDeselect(_id);
+        }
+
+        public IGridCellView GetCell(int cellIndex)
+        {
+            return _cells[cellIndex];
+        }
+
+        public List<GridCellView> GetCells()
+        {
+            return _cells;
         }
     }
 }
