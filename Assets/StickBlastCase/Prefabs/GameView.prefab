@@ -275,6 +275,7 @@ MonoBehaviour:
   _gridGapThickness: 15
   _draggableObjectContainer: {fileID: 6079323288766177696}
   _gameResources: {fileID: 11400000, guid: 95701b3e00d19b2469d46b2d84e098f2, type: 2}
+  _raycaster: {fileID: 5838042839449007685}
 --- !u!1 &6567632596980930458
 GameObject:
   m_ObjectHideFlags: 0

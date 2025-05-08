@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace StickBlastCase.Game.Views
 {
@@ -8,7 +9,7 @@ namespace StickBlastCase.Game.Views
         //  MEMBERS
         Transform transform { get; }
         //  METHODS
-        void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int> onDeselected);
+        void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int, PointerEventData> onDragged, Action<int> onDeselected);
 
         void StartDrag();
         void UpdateDrag(Vector3 screenPosition);

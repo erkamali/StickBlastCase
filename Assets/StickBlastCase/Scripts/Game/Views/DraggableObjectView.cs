@@ -20,10 +20,11 @@ namespace StickBlastCase.Game.Views
         private Vector2 _originalPos;
         private RectTransform _rectTransform;
         private Action<int> _onSelect;
+        private Action<int, PointerEventData> _onDrag;
         private Action<int> _onDeselect;
         
         //  METHODS
-        public void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int> onDeselected)
+        public void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int, PointerEventData> onDragged, Action<int> onDeselected)
         {
             _id = id;
             
@@ -31,7 +32,8 @@ namespace StickBlastCase.Game.Views
             _rectTransform = GetComponent<RectTransform>();
             _rectTransform.anchoredPosition = _originalPos;
                 
-            _onSelect = onSelected;
+            _onSelect   = onSelected;
+            _onDrag     = onDragged;
             _onDeselect = onDeselected;
             
             _childRect.sizeDelta = new Vector2(width, height);
@@ -44,8 +46,7 @@ namespace StickBlastCase.Game.Views
         
         public void EndDragAndPlace(IGridGapView gap)
         {
-            RectTransform rt = GetComponent<RectTransform>();
-            rt.SetParent(gap.Transform, worldPositionStays: false);
+            _rectTransform.SetParent(gap.Transform, worldPositionStays: false);
 
             // Animate snapping to center of the gap
             //rt.DOAnchorPos(Vector2.zero, 0.1f).SetEase(Ease.OutQuad)
@@ -64,24 +65,15 @@ namespace StickBlastCase.Game.Views
 
         public void OnDrag(PointerEventData eventData)
         {
-            /*
-            Canvas canvas = GetComponentInParent<Canvas>();
-            // Convert screen position to canvas local position
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvas.transform as RectTransform,
-                eventData.position,
-                eventData.pressEventCamera,
-                out Vector2 localPoint
-            );
-
-            // Add slight offset (optional)
-            Vector3 position = localPoint + Vector2.up * 10f;
-
-            UpdateDrag(position);
-            */
+            _rectTransform.anchoredPosition += eventData.delta;
             
-            RectTransform rt = GetComponent<RectTransform>();
-            rt.anchoredPosition += eventData.delta;
+            // Create new PointerEventData
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = eventData.position // Current mouse/touch position
+            };
+            
+            _onDrag(_id, pointerData);
         }
         
         public void UpdateDrag(Vector3 position)

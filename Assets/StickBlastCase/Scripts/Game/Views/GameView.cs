@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Com.Bit34Games.Director.Unity;
 using StickBlastCase.Game.Constants;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace StickBlastCase.Game.Views
 {
@@ -10,14 +12,18 @@ namespace StickBlastCase.Game.Views
     {
         //  MEMBERS
         //      Editor
-        [SerializeField] private RectTransform  _gridContainer;
-        [SerializeField] private GameObject     _gridCellPrefab;
-        [SerializeField] private GameObject     _gridGapPrefab;
         [SerializeField] private float          _gridCellSize;
         [SerializeField] private float          _gridGapThickness;
-
-        [SerializeField] private Transform  _draggableObjectContainer;
         
+        [Header("Self References")]
+        [SerializeField] private RectTransform  _gridContainer;
+        [SerializeField] private Transform      _draggableObjectContainer;
+        
+        [SerializeField] private GraphicRaycaster _raycaster;
+        
+        [Header("Resource References")]
+        [SerializeField] private GameObject     _gridCellPrefab;
+        [SerializeField] private GameObject     _gridGapPrefab;
         [SerializeField] private GameResources _gameResources;
 
         //      Private
@@ -137,7 +143,7 @@ namespace StickBlastCase.Game.Views
                 RectTransform rt = IShapeGO.GetComponent<RectTransform>();
                 Vector2 originalPos = Vector2.right * _gridCellSize * (i - midIndex);
                 IDraggableObjectView draggableObjectView = IShapeGO.GetComponent<IDraggableObjectView>();
-                draggableObjectView.Initialize(i, _gridGapThickness, _gridCellSize, originalPos, OnSelected, OnDeselected);
+                draggableObjectView.Initialize(i, _gridGapThickness, _gridCellSize, originalPos, OnSelected, OnDragged, OnDeselected);
                 _draggableObjects.Add(i, draggableObjectView);
             }
         }
@@ -145,6 +151,23 @@ namespace StickBlastCase.Game.Views
         private void OnSelected(int draggableObjectId)
         {
             ViewEvents.SelectDraggableObject(draggableObjectId);
+        }
+        
+        private void OnDragged(int draggableObjectId, PointerEventData pointerEventData)
+        {
+            List<RaycastResult> results = new List<RaycastResult>();
+            _raycaster.Raycast(pointerEventData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (result.gameObject == gameObject)
+                    continue; // skip self
+
+                if (result.gameObject.GetComponent<IGridGapView>() != null)
+                {
+                    Debug.Log("Hovering over: " + result.gameObject.name);
+                }
+            }
         }
 
         private void OnDeselected(int draggableObjectId)
