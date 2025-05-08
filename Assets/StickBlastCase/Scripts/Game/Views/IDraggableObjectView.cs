@@ -1,8 +1,18 @@
+using System;
+using UnityEngine;
+
 namespace StickBlastCase.Game.Views
 {
     public interface IDraggableObjectView
     {
+        //  MEMBERS
+        Transform transform { get; }
         //  METHODS
-        void SetSize(float width, float height);
+        void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int> onDeselected);
+
+        void StartDrag();
+        void UpdateDrag(Vector3 screenPosition);
+        void CancelDrag();
+        void EndDragAndPlace(IGridGapView gap);
     }
 }

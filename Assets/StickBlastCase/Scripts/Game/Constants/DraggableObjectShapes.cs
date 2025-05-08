@@ -6,6 +6,8 @@ namespace StickBlastCase.Game.Constants
         ILong,
         Dash,
         DashLong,
+        U,
+        
         
     }
 }

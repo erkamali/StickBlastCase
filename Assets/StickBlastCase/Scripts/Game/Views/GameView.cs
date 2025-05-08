@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using Com.Bit34Games.Director.Unity;
 using StickBlastCase.Game.Constants;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace StickBlastCase.Game.Views
 {
@@ -27,6 +27,10 @@ namespace StickBlastCase.Game.Views
         private IGridCellView[,]    _gridCells;
         private IGridGapView[,]     _horizontalGaps;
         private IGridGapView[,]     _verticalGaps;
+        
+        private int _draggingObjectId;
+        private Dictionary<int, IDraggableObjectView> _draggableObjects;
+        private List<IGridGapView> _highlightedGaps;
 
         private IGameMediator   _gameMediator;
 
@@ -36,6 +40,17 @@ namespace StickBlastCase.Game.Views
             _gameMediator = gameMediator;
             
             _draggableObjectCount = draggableObjectCount;
+            
+            _draggingObjectId = -1;
+            _draggableObjects = new Dictionary<int, IDraggableObjectView>();
+            
+            _highlightedGaps = new List<IGridGapView>();
+        }
+        
+        public void Clear()
+        {
+            _draggingObjectId = -1;
+            _draggableObjects.Clear();
         }
         
         public void CreateGrid(int colCount, int rowCount)
@@ -62,7 +77,7 @@ namespace StickBlastCase.Game.Views
                 {
                     GameObject gapGO = Instantiate(_gridGapPrefab, _gridContainer);
                     GridGapView gapView = gapGO.GetComponent<GridGapView>();
-                    gapView.direction = GridGapDirections.Horizontal;
+                    gapView.SetDirection(GridGapDirections.Horizontal);
                     gapView.SetSize(_gridCellSize, _gridGapThickness);
 
                     float y = (row - 0.5f) * (_gridCellSize + _gridGapThickness) - offsetY;
@@ -80,7 +95,7 @@ namespace StickBlastCase.Game.Views
                 {
                     GameObject gapGO = Instantiate(_gridGapPrefab, _gridContainer);
                     GridGapView gapView = gapGO.GetComponent<GridGapView>();
-                    gapView.direction = GridGapDirections.Vertical;
+                    gapView.SetDirection(GridGapDirections.Vertical);
                     gapView.SetSize(_gridCellSize, _gridGapThickness);
 
                     float x = (col - 0.5f) * (_gridCellSize + _gridGapThickness) - offsetX;
@@ -120,10 +135,174 @@ namespace StickBlastCase.Game.Views
                 // Create the draggable object and position it at the center of the grid
                 GameObject IShapeGO = Instantiate(_gameResources.GetShapePrefab((int)DraggableObjectShapes.I), _draggableObjectContainer);
                 RectTransform rt = IShapeGO.GetComponent<RectTransform>();
-                rt.anchoredPosition = Vector2.right * _gridCellSize * (i - midIndex);
+                Vector2 originalPos = Vector2.right * _gridCellSize * (i - midIndex);
                 IDraggableObjectView draggableObjectView = IShapeGO.GetComponent<IDraggableObjectView>();
-                draggableObjectView.SetSize(_gridGapThickness, _gridCellSize);
+                draggableObjectView.Initialize(i, _gridGapThickness, _gridCellSize, originalPos, OnSelected, OnDeselected);
+                _draggableObjects.Add(i, draggableObjectView);
             }
+        }
+
+        private void OnSelected(int draggableObjectId)
+        {
+            ViewEvents.SelectDraggableObject(draggableObjectId);
+        }
+
+        private void OnDeselected(int draggableObjectId)
+        {
+            if (_draggingObjectId == draggableObjectId)
+            {
+                ViewEvents.DeselectDraggableObject(draggableObjectId);
+            }
+        }
+        
+        public void StartObjectDrag(int objectId)
+        {
+            _draggingObjectId = objectId;
+            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
+            draggableObject.StartDrag();
+        }
+
+        public void EndObjectDrag(int objectId)
+        {
+            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
+            draggableObject.CancelDrag();
+        }
+
+        public void CancelObjectDrag()
+        {
+            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
+            draggableObject.CancelDrag();
+            _draggingObjectId = -1;
+        }
+
+        public void EndPileDragAndStartPlace(IGridGapView gap)
+        {
+            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
+            draggableObject.EndDragAndPlace(gap);
+            _draggingObjectId = -1;
+        }
+        
+        public IGridGapView GetGapAt(int col, int row)
+        {
+            if (col < 0 || col >= _colCount || row < 0 || row >= _rowCount)
+                return null;
+
+            // Try horizontal first
+            if (row <= _rowCount && col < _colCount)
+                return _horizontalGaps[col, row];
+
+            // Then vertical
+            if (col <= _colCount && row < _rowCount)
+                return _verticalGaps[col, row];
+
+            return null;
+        }
+        
+        public Vector2Int GetGapGridIndex(IGridGapView gap)
+        {
+            for (int col = 0; col < _colCount; col++)
+            {
+                for (int row = 0; row <= _rowCount; row++)
+                {
+                    if (_horizontalGaps[col, row] == gap)
+                        return new Vector2Int(col, row);
+                }
+            }
+
+            for (int col = 0; col <= _colCount; col++)
+            {
+                for (int row = 0; row < _rowCount; row++)
+                {
+                    if (_verticalGaps[col, row] == gap)
+                        return new Vector2Int(col, row);
+                }
+            }
+
+            return new Vector2Int(-1, -1); // Not found
+        }
+        
+        /*
+        private void Update()
+        {
+            if (_draggingObjectId == -1) return;
+            
+            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
+
+            // Convert mouse position to local UI space
+            Vector2 mousePosition = Input.mousePosition;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_gridContainer, mousePosition, null, out Vector2 localPoint);
+
+            // Find the gap directly under the mouse (could be any type)
+            IGridGapView hoveredGap = FindGapUnderMouse(localPoint);
+    
+            // Clear previous highlights
+            foreach (IGridGapView gap in _highlightedGaps)
+            {
+                gap.SetHighlighted(false);
+            }
+            _highlightedGaps.Clear();
+
+            if (hoveredGap != null)
+            {
+                // Ask mediator which gaps would be affected if this object were placed on hoveredGap
+                List<IGridGapView> candidateGaps = _gameMediator.GetAffectedGapsIfPlaced(_draggingObjectId, hoveredGap);
+
+                if (candidateGaps != null && _gameMediator.CheckDraggableOverGap(_draggingObjectId, hoveredGap))
+                {
+                    foreach (IGridGapView gap in candidateGaps)
+                    {
+                        gap.SetHighlighted(true);
+                        _highlightedGaps.Add(gap);
+                    }
+
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        EndPileDragAndStartPlace(hoveredGap);
+                    }
+
+                    return;
+                }
+            }
+
+            // If we reach here, no valid placement found or mouse not over any gap
+            if (Input.GetMouseButtonUp(0))
+            {
+                ViewEvents.CancelDraggableObjectDrag();
+            }
+        }
+        */
+        
+        private IGridGapView FindGapUnderMouse(Vector2 localPoint)
+        {
+            const float detectionRadius = 10f;
+            float closestDistance = float.MaxValue;
+            IGridGapView closestGap = null;
+
+            foreach (IGridGapView gap in _horizontalGaps)
+            {
+                if (gap == null) continue;
+                RectTransform rt = ((Component)gap).GetComponent<RectTransform>();
+                float dist = Vector2.Distance(rt.anchoredPosition, localPoint);
+                if (dist < detectionRadius && dist < closestDistance)
+                {
+                    closestDistance = dist;
+                    closestGap = gap;
+                }
+            }
+
+            foreach (IGridGapView gap in _verticalGaps)
+            {
+                if (gap == null) continue;
+                RectTransform rt = ((Component)gap).GetComponent<RectTransform>();
+                float dist = Vector2.Distance(rt.anchoredPosition, localPoint);
+                if (dist < detectionRadius && dist < closestDistance)
+                {
+                    closestDistance = dist;
+                    closestGap = gap;
+                }
+            }
+
+            return closestGap;
         }
     }
 }
