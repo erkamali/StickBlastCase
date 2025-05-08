@@ -3,9 +3,10 @@ namespace StickBlastCase.Game.Constants
     public enum DraggableObjectShapes
     {
         I,
-        ILong,
+        //ILong,
         Dash,
-        DashLong,
+        //DashLong,
+        L,
         U,
         
         

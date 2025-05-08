@@ -14,4 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _colors: []
   _shapePrefabs:
-  - {fileID: 4080202960976694173, guid: 39a840cd1837d4840b086ef1c905f220, type: 3}
+  - {fileID: 1356820894144144251, guid: 66fa4fd16b5d2ef449f5f453cccad9ba, type: 3}
+  - {fileID: 1356820894144144251, guid: a1b96311a2dc44c45b0af785e7b68daa, type: 3}
+  - {fileID: 1356820894144144251, guid: 3b6706dd4a9db5e439af73c7197b38a3, type: 3}
+  _gridCellPrefabs:
+  - {fileID: 6217294245733508966, guid: 13de7c285e49b9149a336da6d17f3c5a, type: 3}
+  - {fileID: 6217294245733508966, guid: 32e8cf897ed3cde4cab9d935af424b20, type: 3}
+  - {fileID: 6217294245733508966, guid: f821f5f30ba6c3341a1e8ae388f298d3, type: 3}
+  - {fileID: 6217294245733508966, guid: e15caf35274646b469b8a76bbebba397, type: 3}
+  - {fileID: 6217294245733508966, guid: 00920b600f44b0846b1129bc0bbe9523, type: 3}

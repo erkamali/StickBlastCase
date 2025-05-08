@@ -8,14 +8,20 @@ namespace StickBlastCase.Game.Views
                                 IGridCellView
     {
         //  MEMBERS
+        public int              Col     { get; private set; }
+        public int              Row     { get; private set; }
+        public GridCellShapes   Shape   { get { return _shape; } }
+        //      Editor
+        [SerializeField] private GridCellShapes _shape;
         [SerializeField] private Image background;
         //      Private
-        private IGridGapView Top;
-        private IGridGapView Bottom;
-        private IGridGapView Left;
-        private IGridGapView Right;
         
         //  METHODS
+        public void Initialize(int column, int row, GridCellShapes shape)
+        {
+            _shape = shape;
+        }
+        
         public void SetColor(Color color)
         {
             background.color = color;
@@ -24,34 +30,6 @@ namespace StickBlastCase.Game.Views
         public void SetFilled(bool filled)
         {
             background.color = filled ? Color.green : Color.white;
-        }
-        
-        public bool IsSurrounded()
-        {
-            return Top?.IsFilled == true &&
-                   Bottom?.IsFilled == true &&
-                   Left?.IsFilled == true &&
-                   Right?.IsFilled == true;
-        }
-
-        public void SetTop(IGridGapView gap)
-        {
-            Top = gap;
-        }
-        
-        public void SetBottom(IGridGapView gap)
-        {
-            Bottom = gap;
-        }
-        
-        public void SetLeft(IGridGapView gap)
-        {
-            Left = gap;
-        }
-        
-        public void SetRight(IGridGapView gap)
-        {
-            Right = gap;
         }
     }
 }

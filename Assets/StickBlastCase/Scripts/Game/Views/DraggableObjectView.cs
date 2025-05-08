@@ -24,7 +24,7 @@ namespace StickBlastCase.Game.Views
         private Action<int> _onDeselect;
         
         //  METHODS
-        public void Initialize(int id, float width, float height, Vector2 originalPos, Action<int> onSelected, Action<int, PointerEventData> onDragged, Action<int> onDeselected)
+        public void Initialize(int id, float width, Vector2 originalPos, Action<int> onSelected, Action<int, PointerEventData> onDragged, Action<int> onDeselected)
         {
             _id = id;
             
@@ -36,7 +36,7 @@ namespace StickBlastCase.Game.Views
             _onDrag     = onDragged;
             _onDeselect = onDeselected;
             
-            _childRect.sizeDelta = new Vector2(width, height);
+            _childRect.sizeDelta = new Vector2(width, width);
         }
 
         public void CancelDrag()
@@ -44,9 +44,9 @@ namespace StickBlastCase.Game.Views
             _rectTransform.anchoredPosition = _originalPos;
         }
         
-        public void EndDragAndPlace(IGridGapView gap)
+        public void EndDragAndPlace(IGridCellView gridCell)
         {
-            _rectTransform.SetParent(gap.Transform, worldPositionStays: false);
+            _rectTransform.SetParent(gridCell.transform, worldPositionStays: false);
 
             // Animate snapping to center of the gap
             //rt.DOAnchorPos(Vector2.zero, 0.1f).SetEase(Ease.OutQuad)

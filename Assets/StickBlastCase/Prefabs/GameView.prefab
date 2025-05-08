@@ -182,7 +182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 70, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &654178070401594805
@@ -268,14 +268,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65c4ba870cb24535b15e3335c81ede53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cellSize: 100
   _gridContainer: {fileID: 9082787970996188883}
+  _draggableObjectContainer: {fileID: 6079323288766177696}
+  _raycaster: {fileID: 5838042839449007685}
   _gridCellPrefab: {fileID: 6217294245733508966, guid: 79e3eff2c4c9313469c932792382b1ff, type: 3}
   _gridGapPrefab: {fileID: 2705804070395762852, guid: 2df9f84815423064fb49aa259991c0e7, type: 3}
-  _gridCellSize: 150
-  _gridGapThickness: 15
-  _draggableObjectContainer: {fileID: 6079323288766177696}
   _gameResources: {fileID: 11400000, guid: 95701b3e00d19b2469d46b2d84e098f2, type: 2}
-  _raycaster: {fileID: 5838042839449007685}
 --- !u!1 &6567632596980930458
 GameObject:
   m_ObjectHideFlags: 0
