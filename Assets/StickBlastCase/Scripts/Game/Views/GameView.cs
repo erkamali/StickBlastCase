@@ -27,6 +27,8 @@ namespace StickBlastCase.Game.Views
         //      Private
         private int _colCount;
         private int _rowCount;
+        private float _xOffset;
+        private float _yOffset;
         private int _draggableObjectCount;
         private IGridCellView[,]    _gridCells;
         
@@ -56,6 +58,50 @@ namespace StickBlastCase.Game.Views
             _draggableObjects.Clear();
         }
 
+        public void SetupGrid(int colCount, int rowCount)
+        {
+            _colCount = colCount;
+            _rowCount = rowCount;
+            
+            _gridCells = new IGridCellView[_colCount, _rowCount];
+            
+            _xOffset = (_colCount / 2) * _cellSize;
+            _yOffset = (_rowCount / 2) * _cellSize;
+        }
+
+        public void AddGridCell(int col, int row, GridCellShapes shape)
+        {
+            GameObject gridCellPrefab = _gameResources.GetGridCellPrefab((int)shape);
+            GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
+            gridCellGO.gameObject.name = shape.ToString() + "_col_" + col + "_row_" + row;
+            GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
+            gridCell.Initialize(col, row, shape, Color.gray);
+
+            float y = ((row - 0.5f) * _cellSize) - _yOffset;
+            float x = (col * _cellSize) - _xOffset;
+
+            gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+                            
+            _gridCells[col, row] = gridCell;
+        }
+
+        public void AddDraggableObjects()
+        {
+            _draggableObjectContainer.transform.localPosition = Vector2.down * _cellSize * 5;
+            float midIndex = (_draggableObjectCount - 1) / 2;
+            for (int i = 0; i < _draggableObjectCount; i++)
+            {
+                // Create the draggable object and position it at the center of the grid
+                GameObject IShapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
+                RectTransform rt = IShapeGO.GetComponent<RectTransform>();
+                Vector2 originalPos = Vector2.right * _cellSize * 2 * (i - midIndex);
+                IDraggableObjectView draggableObjectView = IShapeGO.GetComponent<IDraggableObjectView>();
+                draggableObjectView.Initialize(i, _cellSize, originalPos, OnSelected, OnDragged, OnDeselected);
+                _draggableObjects.Add(i, draggableObjectView);
+            }
+        }
+
+        /*
         public void CreateGrid(int colCount, int rowCount)
         {
             _colCount = (colCount * 2) + 1;
@@ -153,6 +199,7 @@ namespace StickBlastCase.Game.Views
                 _draggableObjects.Add(i, draggableObjectView);
             }
         }
+        */
 
         private void OnSelected(int draggableObjectId)
         {
