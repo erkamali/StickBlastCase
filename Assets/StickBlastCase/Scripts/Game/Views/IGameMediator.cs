@@ -7,5 +7,6 @@ namespace StickBlastCase.Game.Views
     {
         void ClearHighlightedCells();
         bool CheckCellUnderneath(int nearestCellCol, int nearestCellRow, GridCellShapes draggingObjectCellShape);
+        void LinkCells(int nearestCellCol, int nearestCellRow, GridCellView gridCellView);
     }
 }

@@ -155,7 +155,8 @@ namespace StickBlastCase.Game.Views
                 {
                     break;
                 }
-                
+
+                _gameMediator.LinkCells(nearestGridCell.Col, nearestGridCell.Row, draggingObjectCell);
                 _cellsToHighlight.Add(nearestGridCell);
             }
 
@@ -182,6 +183,11 @@ namespace StickBlastCase.Game.Views
         {
             _gridCells[col, row].SetFilled(filled);
         }
+
+        public void HideDraggableObjectGridCell(GridCellView draggableObjectGridCell)
+        {
+            draggableObjectGridCell.gameObject.SetActive(false);
+        }
         
         public void StartObjectDrag(int objectId)
         {
@@ -195,7 +201,6 @@ namespace StickBlastCase.Game.Views
             IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
             draggableObject.EndDragAndPlace(_cellsToHighlight);
             draggableObject.transform.SetParent(_gridContainer.transform);
-            
             
             _draggableObjects.Remove(objectId);
             if (_draggableObjects.Count <= 0)

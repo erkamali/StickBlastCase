@@ -15,6 +15,7 @@ namespace StickBlastCase.Game.Views
         [Inject] private GameModel  _model;
         //      Private
         private List<IGridCellData> _highlightedCells;
+        private Dictionary<IGridCellData, GridCellView> _linkedGridCells;
         
         //  METHODS
 
@@ -25,6 +26,7 @@ namespace StickBlastCase.Game.Views
             _view.Initialize(this, 3);
             
             _highlightedCells = new List<IGridCellData>();
+            _linkedGridCells  = new Dictionary<IGridCellData, GridCellView>();
 
             AddListeners();
         }
@@ -135,6 +137,10 @@ namespace StickBlastCase.Game.Views
                     foreach (IGridCellData cellToClear in cellsToClear)
                     {
                         _view.SetGridCellFilled(cellToClear.Col, cellToClear.Row, false);
+                        if (_linkedGridCells.ContainsKey(cellToClear))
+                        {
+                            _view.HideDraggableObjectGridCell(_linkedGridCells[cellToClear]);
+                        }
                     }
                     
                     List<IGridCellData> verticalAndHorizontalGapsToClear = _model.ClearVerticalAndHorizontalGaps();
@@ -143,6 +149,10 @@ namespace StickBlastCase.Game.Views
                         foreach (IGridCellData gapToClear in verticalAndHorizontalGapsToClear)
                         {
                             _view.SetGridCellFilled(gapToClear.Col, gapToClear.Row, false);
+                            if (_linkedGridCells.ContainsKey(gapToClear))
+                            {
+                                _view.HideDraggableObjectGridCell(_linkedGridCells[gapToClear]);
+                            }
                         }
                     }
                 
@@ -163,6 +173,7 @@ namespace StickBlastCase.Game.Views
         public void ClearHighlightedCells()
         {
             _highlightedCells.Clear();
+            _linkedGridCells.Clear();
         }
         
         public bool CheckCellUnderneath(int nearestCellCol, int nearestCellRow, GridCellShapes draggingObjectCellShape)
@@ -180,6 +191,12 @@ namespace StickBlastCase.Game.Views
 
             _highlightedCells.Add(nearestCellData);
             return true;
+        }
+
+        public void LinkCells(int nearestCellCol, int nearestCellRow, GridCellView gridCellView)
+        {
+            IGridCellData nearestCellData = _model.GetGridCell(nearestCellCol, nearestCellRow);
+            _linkedGridCells.Add(nearestCellData, gridCellView);
         }
 
 #endregion

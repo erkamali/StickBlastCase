@@ -7,24 +7,25 @@ namespace StickBlastCase.Game.Models
     public class GameModel : IGameModel
     {
         //  MEMBERS
-        public int LevelColCount    { get; private set; }
-        public int LevelRowCount    { get; private set; }
-        public int GridColCount     { get; private set; }
-        public int GridRowCount     { get; private set; }
+        public int LevelColCount { get; private set; }
+        public int LevelRowCount { get; private set; }
+        public int GridColCount { get; private set; }
+
+        public int GridRowCount { get; private set; }
+
         //      Private
         private GridCellData[,] _gridCells;
-        
+
         //  METHODS
         public void Load()
         {
-             
         }
 
         public void Unload()
         {
             _gridCells = null;
         }
-        
+
         public void CreateGrid(int colCount, int rowCount)
         {
             LevelColCount = colCount;
@@ -58,11 +59,11 @@ namespace StickBlastCase.Game.Models
         {
             gridCell.SetFilled(filled);
         }
-        
+
         public List<GridCellData> GetCornerCellsToBeFilled()
         {
             List<GridCellData> cornersToBeFilled = new List<GridCellData>();
-            
+
             for (int c = 0; c < GridColCount; c++)
             {
                 for (int r = 0; r < GridRowCount; r++)
@@ -80,7 +81,7 @@ namespace StickBlastCase.Game.Models
                     }
 
                     bool hasFilledNeighbor = false;
-                    
+
                     // Up
                     if (r > 0 && _gridCells[c, r - 1].IsFilled)
                     {
@@ -112,11 +113,11 @@ namespace StickBlastCase.Game.Models
 
             return cornersToBeFilled;
         }
-        
+
         public List<GridCellData> GetSquareCellsToBeFilled()
         {
             List<GridCellData> squaresToBeFilled = new List<GridCellData>();
-            
+
             for (int c = 0; c < GridColCount; c++)
             {
                 for (int r = 0; r < GridRowCount; r++)
@@ -134,14 +135,14 @@ namespace StickBlastCase.Game.Models
                     }
 
                     // Up
-                    bool upperCellFilled = r > 0 && _gridCells[c, r-1].IsFilled;
-                    
+                    bool upperCellFilled = r > 0 && _gridCells[c, r - 1].IsFilled;
+
                     // Down
                     bool lowerCellFilled = r < GridRowCount - 1 && _gridCells[c, r + 1].IsFilled;
-                    
+
                     // Left
                     bool leftCellFilled = c > 0 && _gridCells[c - 1, r].IsFilled;
-                    
+
                     // Right
                     bool rightCellFilled = c < GridColCount - 1 && _gridCells[c + 1, r].IsFilled;
 
@@ -155,7 +156,7 @@ namespace StickBlastCase.Game.Models
 
             return squaresToBeFilled;
         }
-        
+
         public HashSet<IGridCellData> ClearCompleteRowsAndColumns()
         {
             List<int> completeRows = new List<int>();
@@ -185,10 +186,8 @@ namespace StickBlastCase.Game.Models
                 if (rowComplete)
                 {
                     completeRows.Add(row);
-                    UnityEngine.Debug.Log("row complete. row id: " + row);
                     for (int col = 0; col < GridColCount; col++)
                     {
-                        UnityEngine.Debug.Log("mark cell to clear. col: " + col + ", row: " + row);
                         IGridCellData cell = _gridCells[col, row];
                         cellsToClear.Add(cell);
                     }
@@ -218,10 +217,8 @@ namespace StickBlastCase.Game.Models
                 if (colComplete)
                 {
                     completeCols.Add(col);
-                    UnityEngine.Debug.Log("col complete. col id: " + col);
                     for (int row = 0; row < GridRowCount; row++)
                     {
-                        UnityEngine.Debug.Log("mark cell to clear. col: " + col + ", row: " + row);
                         IGridCellData cell = _gridCells[col, row];
                         cellsToClear.Add(cell);
                     }
@@ -236,11 +233,11 @@ namespace StickBlastCase.Game.Models
 
             return cellsToClear;
         }
-        
+
         public List<IGridCellData> ClearVerticalAndHorizontalGaps()
         {
             List<IGridCellData> cellsToClear = new List<IGridCellData>();
-            
+
             // Loop through all the cells in the grid
             for (int c = 0; c < GridColCount; c++)
             {
@@ -283,11 +280,11 @@ namespace StickBlastCase.Game.Models
 
             return cellsToClear;
         }
-        
+
         public List<IGridCellData> ClearCorners()
         {
             List<IGridCellData> cellsToClear = new List<IGridCellData>();
-            
+
             // Loop through all the cells in the grid
             for (int c = 0; c < GridColCount; c++)
             {
@@ -310,7 +307,8 @@ namespace StickBlastCase.Game.Models
                             if (nc >= 0 && nc < GridColCount && nr >= 0 && nr < GridRowCount)
                             {
                                 IGridCellData neighbor = _gridCells[nc, nr];
-                                if ((neighbor.Shape == GridCellShapes.VerticalGap || neighbor.Shape == GridCellShapes.HorizontalGap) && neighbor.IsFilled)
+                                if ((neighbor.Shape == GridCellShapes.VerticalGap ||
+                                     neighbor.Shape == GridCellShapes.HorizontalGap) && neighbor.IsFilled)
                                 {
                                     hasFilledNeighbor = true;
                                     break;
@@ -330,15 +328,15 @@ namespace StickBlastCase.Game.Models
 
             return cellsToClear;
         }
-        
+
         private List<Vector2Int> GetNeighbors()
         {
             return new List<Vector2Int>
             {
                 new Vector2Int(0, -1), // Up
-                new Vector2Int(0, 1),  // Down
+                new Vector2Int(0, 1), // Down
                 new Vector2Int(-1, 0), // Left
-                new Vector2Int(1, 0)   // Right
+                new Vector2Int(1, 0) // Right
             };
         }
     }
