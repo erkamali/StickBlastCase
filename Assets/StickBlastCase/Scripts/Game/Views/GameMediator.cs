@@ -129,33 +129,31 @@ namespace StickBlastCase.Game.Views
                     _view.SetGridCellFilled(square.Col, square.Row, square.IsFilled);
                 }
                 
-                ValueTuple<List<int>, List<int>> completeRowsAndColumns = _model.ClearCompleteRowsAndColumns();
-                List<int> clearedRows = completeRowsAndColumns.Item1;
-                List<int> clearedCols = completeRowsAndColumns.Item2;
-                
-                // Clear visuals for affected rows
-                if (clearedRows.Count > 0)
+                HashSet<IGridCellData> cellsToClear = _model.ClearCompleteRowsAndColumns();
+                if (cellsToClear.Count > 0)
                 {
-                    foreach (int row in clearedRows)
+                    foreach (IGridCellData cellToClear in cellsToClear)
                     {
-                        for (int col = 0; col < _model.GridColCount; col++)
-                        {
-                            _view.SetGridCellFilled(col, row, false);
-                        }
-                    }
-                }
-
-                // Clear visuals for affected columns
-                if (clearedCols.Count > 0)
-                {
-                    foreach (int col in clearedCols)
-                    {
-                        for (int row = 0; row < _model.GridRowCount; row++)
-                        {
-                            _view.SetGridCellFilled(col, row, false);
-                        }
+                        _view.SetGridCellFilled(cellToClear.Col, cellToClear.Row, false);
                     }
                     
+                    List<IGridCellData> verticalAndHorizontalGapsToClear = _model.ClearVerticalAndHorizontalGaps();
+                    if (verticalAndHorizontalGapsToClear.Count > 0)
+                    {
+                        foreach (IGridCellData gapToClear in verticalAndHorizontalGapsToClear)
+                        {
+                            _view.SetGridCellFilled(gapToClear.Col, gapToClear.Row, false);
+                        }
+                    }
+                
+                    List<IGridCellData> cornersToClear = _model.ClearCorners();
+                    if (cornersToClear.Count > 0)
+                    {
+                        foreach (IGridCellData cornerToClear in cornersToClear)
+                        {
+                            _view.SetGridCellFilled(cornerToClear.Col, cornerToClear.Row, false);
+                        }
+                    }
                 }
             }
         }

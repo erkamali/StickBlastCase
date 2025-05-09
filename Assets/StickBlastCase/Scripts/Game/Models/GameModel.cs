@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using StickBlastCase.Game.Constants;
+using UnityEngine;
 
 namespace StickBlastCase.Game.Models
 {
@@ -155,10 +156,11 @@ namespace StickBlastCase.Game.Models
             return squaresToBeFilled;
         }
         
-        public (List<int> completeRows, List<int> completeCols) ClearCompleteRowsAndColumns()
+        public HashSet<IGridCellData> ClearCompleteRowsAndColumns()
         {
             List<int> completeRows = new List<int>();
             List<int> completeCols = new List<int>();
+            HashSet<IGridCellData> cellsToClear = new HashSet<IGridCellData>();
 
             // Find complete rows
             for (int row = 0; row < GridRowCount; row++)
@@ -167,7 +169,7 @@ namespace StickBlastCase.Game.Models
                 {
                     continue;
                 }
-                
+
                 bool rowComplete = true;
 
                 for (int col = 0; col < GridColCount; col++)
@@ -181,7 +183,16 @@ namespace StickBlastCase.Game.Models
                 }
 
                 if (rowComplete)
+                {
                     completeRows.Add(row);
+                    UnityEngine.Debug.Log("row complete. row id: " + row);
+                    for (int col = 0; col < GridColCount; col++)
+                    {
+                        UnityEngine.Debug.Log("mark cell to clear. col: " + col + ", row: " + row);
+                        IGridCellData cell = _gridCells[col, row];
+                        cellsToClear.Add(cell);
+                    }
+                }
             }
 
             // Find complete columns
@@ -205,30 +216,130 @@ namespace StickBlastCase.Game.Models
                 }
 
                 if (colComplete)
+                {
                     completeCols.Add(col);
-            }
-
-            // Clear filled squares in complete rows
-            foreach (int row in completeRows)
-            {
-                for (int col = 0; col < GridColCount; col++)
-                {
-                    IGridCellData cell = _gridCells[col, row];
-                    cell.SetFilled(false);
+                    UnityEngine.Debug.Log("col complete. col id: " + col);
+                    for (int row = 0; row < GridRowCount; row++)
+                    {
+                        UnityEngine.Debug.Log("mark cell to clear. col: " + col + ", row: " + row);
+                        IGridCellData cell = _gridCells[col, row];
+                        cellsToClear.Add(cell);
+                    }
                 }
             }
 
-            // Clear filled squares in complete columns
-            foreach (int col in completeCols)
+            // Clear all collected cells
+            foreach (IGridCellData cell in cellsToClear)
             {
-                for (int row = 0; row < GridRowCount; row++)
+                cell.SetFilled(false);
+            }
+
+            return cellsToClear;
+        }
+        
+        public List<IGridCellData> ClearVerticalAndHorizontalGaps()
+        {
+            List<IGridCellData> cellsToClear = new List<IGridCellData>();
+            
+            // Loop through all the cells in the grid
+            for (int c = 0; c < GridColCount; c++)
+            {
+                for (int r = 0; r < GridRowCount; r++)
                 {
-                    IGridCellData cell = _gridCells[col, row];
-                    cell.SetFilled(false);
+                    IGridCellData cell = _gridCells[c, r];
+
+                    // Only check V or H cells
+                    if (cell.Shape == GridCellShapes.VerticalGap || cell.Shape == GridCellShapes.HorizontalGap)
+                    {
+                        bool hasFilledNeighbor = false;
+
+                        // Check orthogonal neighbors (above, below, left, right)
+                        foreach (Vector2Int offset in GetNeighbors())
+                        {
+                            int nc = c + offset.x;
+                            int nr = r + offset.y;
+
+                            // Check if the neighboring cell is a square and filled
+                            if (nc >= 0 && nc < GridColCount && nr >= 0 && nr < GridRowCount)
+                            {
+                                IGridCellData neighbor = _gridCells[nc, nr];
+                                if (neighbor.Shape == GridCellShapes.Square && neighbor.IsFilled)
+                                {
+                                    hasFilledNeighbor = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If no filled neighbor, mark this V/H cell for clearing
+                        if (!hasFilledNeighbor)
+                        {
+                            cell.SetFilled(false);
+                            cellsToClear.Add(cell);
+                        }
+                    }
                 }
             }
 
-            return (completeRows, completeCols);
+            return cellsToClear;
+        }
+        
+        public List<IGridCellData> ClearCorners()
+        {
+            List<IGridCellData> cellsToClear = new List<IGridCellData>();
+            
+            // Loop through all the cells in the grid
+            for (int c = 0; c < GridColCount; c++)
+            {
+                for (int r = 0; r < GridRowCount; r++)
+                {
+                    IGridCellData cell = _gridCells[c, r];
+
+                    // Only check Corner (C) cells
+                    if (cell.Shape == GridCellShapes.Corner)
+                    {
+                        bool hasFilledNeighbor = false;
+
+                        // Check orthogonal neighbors (above, below, left, right)
+                        foreach (Vector2Int offset in GetNeighbors())
+                        {
+                            int nc = c + offset.x;
+                            int nr = r + offset.y;
+
+                            // Check if the neighboring cell is a V or H cell and is filled
+                            if (nc >= 0 && nc < GridColCount && nr >= 0 && nr < GridRowCount)
+                            {
+                                IGridCellData neighbor = _gridCells[nc, nr];
+                                if ((neighbor.Shape == GridCellShapes.VerticalGap || neighbor.Shape == GridCellShapes.HorizontalGap) && neighbor.IsFilled)
+                                {
+                                    hasFilledNeighbor = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If no filled V/H neighbor, mark this C cell for clearing
+                        if (!hasFilledNeighbor)
+                        {
+                            cell.SetFilled(false);
+                            cellsToClear.Add(cell);
+                        }
+                    }
+                }
+            }
+
+            return cellsToClear;
+        }
+        
+        private List<Vector2Int> GetNeighbors()
+        {
+            return new List<Vector2Int>
+            {
+                new Vector2Int(0, -1), // Up
+                new Vector2Int(0, 1),  // Down
+                new Vector2Int(-1, 0), // Left
+                new Vector2Int(1, 0)   // Right
+            };
         }
     }
 }
