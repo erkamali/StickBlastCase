@@ -7,7 +7,6 @@ namespace StickBlastCase.Game.Views
     {
         //  METHODS
         void Initialize(IGameMediator gameMediator, int draggableObjectCount);
-        //void CreateGrid(int colCount, int rowCount);
         void SetupGrid(int colCount, int rowCount);
         void AddGridCell(int col, int row, GridCellShapes shape);
         void AddDraggableObjects();

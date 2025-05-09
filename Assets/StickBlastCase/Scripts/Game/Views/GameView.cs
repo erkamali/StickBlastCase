@@ -91,7 +91,6 @@ namespace StickBlastCase.Game.Views
             float midIndex = (_draggableObjectCount - 1) / 2;
             for (int i = 0; i < _draggableObjectCount; i++)
             {
-                // Create the draggable object and position it at the center of the grid
                 GameObject IShapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
                 RectTransform rt = IShapeGO.GetComponent<RectTransform>();
                 Vector2 originalPos = Vector2.right * _cellSize * 2 * (i - midIndex);
@@ -100,106 +99,6 @@ namespace StickBlastCase.Game.Views
                 _draggableObjects.Add(i, draggableObjectView);
             }
         }
-
-        /*
-        public void CreateGrid(int colCount, int rowCount)
-        {
-            _colCount = (colCount * 2) + 1;
-            _rowCount = (rowCount * 2) + 1;
-            
-            _gridCells = new IGridCellView[_colCount, _rowCount];
-            
-            float offsetX = (_colCount / 2) * _cellSize;
-            float offsetY = (_rowCount / 2) * _cellSize;
-
-            GameObject gridCellPrefab;
-            for (int row = 0; row < _rowCount; row++)
-            {
-                for (int col = 0; col < _colCount; col++)
-                {
-                    if (row % 2 == 0) // Horizontal gap row
-                    {
-                        if (col % 2 == 0) // Corner
-                        {
-                            gridCellPrefab = _gameResources.GetGridCellPrefab((int)GridCellShapes.Corner);
-                            GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
-                            gridCellGO.gameObject.name = "Corner_col: " + col + ", row: " + row;
-                            GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.Corner, Color.gray);
-
-                            float y = ((row - 0.5f) * _cellSize) - offsetY;
-                            float x = (col * _cellSize) - offsetX;
-
-                            gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            
-                            _gridCells[col, row] = gridCell;
-                        }
-                        else // Horizontal gap
-                        {
-                            gridCellPrefab = _gameResources.GetGridCellPrefab((int)GridCellShapes.HorizontalGap);
-                            GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
-                            gridCellGO.gameObject.name = "HorizontalGap_col: " + col + ", row: " + row;
-                            GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.HorizontalGap, Color.gray);
-
-                            float y = ((row - 0.5f) * _cellSize) - offsetY;
-                            float x = (col * _cellSize) - offsetX;
-
-                            gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            
-                            _gridCells[col, row] = gridCell;
-                        }
-                    }
-                    else // Square row
-                    {
-                        if (col % 2 == 0) // Vertical gap
-                        {
-                            gridCellPrefab = _gameResources.GetGridCellPrefab((int)GridCellShapes.VerticalGap);
-                            GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
-                            gridCellGO.gameObject.name = "VerticalGap_col: " + col + ", row: " + row;
-                            GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.VerticalGap, Color.gray);
-
-                            float y = ((row - 0.5f) * _cellSize) - offsetY;
-                            float x = (col * _cellSize) - offsetX;
-
-                            gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            
-                            _gridCells[col, row] = gridCell;
-                        }
-                        else // Square
-                        {
-                            gridCellPrefab = _gameResources.GetGridCellPrefab((int)GridCellShapes.Square);
-                            GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
-                            gridCellGO.gameObject.name = "Square_col: " + col + ", row: " + row;
-                            GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.Square, Color.gray);
-
-                            float y = ((row - 0.5f) * _cellSize) - offsetY;
-                            float x = (col * _cellSize) - offsetX;
-
-                            gridCellGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                            
-                            _gridCells[col, row] = gridCell;
-                        }
-                    }
-                }
-            }
-            
-            _draggableObjectContainer.transform.localPosition = Vector2.down * _cellSize * 5;
-            float midIndex = (_draggableObjectCount - 1) / 2;
-            for (int i = 0; i < _draggableObjectCount; i++)
-            {
-                // Create the draggable object and position it at the center of the grid
-                GameObject IShapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
-                RectTransform rt = IShapeGO.GetComponent<RectTransform>();
-                Vector2 originalPos = Vector2.right * _cellSize * 2 * (i - midIndex);
-                IDraggableObjectView draggableObjectView = IShapeGO.GetComponent<IDraggableObjectView>();
-                draggableObjectView.Initialize(i, _cellSize, originalPos, OnSelected, OnDragged, OnDeselected);
-                _draggableObjects.Add(i, draggableObjectView);
-            }
-        }
-        */
 
         private void OnSelected(int draggableObjectId)
         {
@@ -231,8 +130,8 @@ namespace StickBlastCase.Game.Views
                 {
                     break;
                 }
-                
-                if (nearestGridCell.Shape != draggingObjectCell.Shape)
+
+                if (_gameMediator.CheckCellUnderneath(nearestGridCell.Col, nearestGridCell.Row, draggingObjectCell.Shape) == false)
                 {
                     break;
                 }

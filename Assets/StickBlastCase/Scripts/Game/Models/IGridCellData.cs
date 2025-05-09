@@ -9,8 +9,12 @@ namespace StickBlastCase.Game.Models
         int             Row     { get; }
         GridCellShapes  Shape   { get; }
         
+        bool IsHighlighted  { get; }
+        bool IsFilled       { get; }
+        
         //  METHODS
         void SetShape(GridCellShapes shape);
+        void SetHighlighted(bool highlighted);
         void SetFilled(bool filled);
     }
 }

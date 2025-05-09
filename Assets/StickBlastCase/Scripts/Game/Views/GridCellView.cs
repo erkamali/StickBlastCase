@@ -22,6 +22,8 @@ namespace StickBlastCase.Game.Views
         //  METHODS
         public void Initialize(int column, int row, GridCellShapes shape, Color color)
         {
+            Col = column;
+            Row = row;
             _shape = shape;
             
             _baseColor = color;

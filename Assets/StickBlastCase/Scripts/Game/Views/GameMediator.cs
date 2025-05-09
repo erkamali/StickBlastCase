@@ -57,7 +57,6 @@ namespace StickBlastCase.Game.Views
         {
             _model.CreateGrid(3, 3);
             
-            //_view.CreateGrid(colCount, rowCount);
             _view.SetupGrid(_model.GridColCount, _model.GridRowCount);
             
             for (int row = 0; row < _model.GridRowCount; row++)
@@ -112,6 +111,22 @@ namespace StickBlastCase.Game.Views
         }
 
 #region IGameMediator implementations
+
+        public bool CheckCellUnderneath(int nearestCellCol, int nearestCellRow, GridCellShapes draggingObjectCellShape)
+        {
+            IGridCellData nearestCellData = _model.GetGridCell(nearestCellCol, nearestCellRow);
+            if (nearestCellData.IsFilled)
+            {
+                return false;
+            }
+
+            if (nearestCellData.Shape != draggingObjectCellShape)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
 #endregion
     }
