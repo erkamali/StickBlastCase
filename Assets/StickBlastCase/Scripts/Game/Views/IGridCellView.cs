@@ -12,8 +12,8 @@ namespace StickBlastCase.Game.Views
         GridCellShapes Shape { get; }
         
         //  METHODS
-        void Initialize(int column, int row, GridCellShapes shape);
-        void SetColor(Color color);
+        void Initialize(int column, int row, GridCellShapes shape, Color color);
+        void SetHighlighted(bool highlighted);
         void SetFilled(bool filled);
     }
 }

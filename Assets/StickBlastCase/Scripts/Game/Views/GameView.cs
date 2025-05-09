@@ -79,7 +79,7 @@ namespace StickBlastCase.Game.Views
                             GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
                             gridCellGO.gameObject.name = "Corner_col: " + col + ", row: " + row;
                             GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.Corner);
+                            gridCell.Initialize(col, row, GridCellShapes.Corner, Color.gray);
 
                             float y = ((row - 0.5f) * _cellSize) - offsetY;
                             float x = (col * _cellSize) - offsetX;
@@ -94,7 +94,7 @@ namespace StickBlastCase.Game.Views
                             GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
                             gridCellGO.gameObject.name = "HorizontalGap_col: " + col + ", row: " + row;
                             GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.HorizontalGap);
+                            gridCell.Initialize(col, row, GridCellShapes.HorizontalGap, Color.gray);
 
                             float y = ((row - 0.5f) * _cellSize) - offsetY;
                             float x = (col * _cellSize) - offsetX;
@@ -112,7 +112,7 @@ namespace StickBlastCase.Game.Views
                             GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
                             gridCellGO.gameObject.name = "VerticalGap_col: " + col + ", row: " + row;
                             GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.VerticalGap);
+                            gridCell.Initialize(col, row, GridCellShapes.VerticalGap, Color.gray);
 
                             float y = ((row - 0.5f) * _cellSize) - offsetY;
                             float x = (col * _cellSize) - offsetX;
@@ -127,7 +127,7 @@ namespace StickBlastCase.Game.Views
                             GameObject gridCellGO = Instantiate(gridCellPrefab, _gridContainer);
                             gridCellGO.gameObject.name = "Square_col: " + col + ", row: " + row;
                             GridCellView gridCell = gridCellGO.GetComponent<GridCellView>();
-                            gridCell.Initialize(col, row, GridCellShapes.Square);
+                            gridCell.Initialize(col, row, GridCellShapes.Square, Color.gray);
 
                             float y = ((row - 0.5f) * _cellSize) - offsetY;
                             float x = (col * _cellSize) - offsetX;
@@ -161,6 +161,10 @@ namespace StickBlastCase.Game.Views
         
         private void OnDragged(int draggableObjectId, PointerEventData pointerEventData)
         {
+            foreach (IGridCellView gridCell in _gridCells)
+            {
+                gridCell.SetHighlighted(false);
+            }
             _cellsToHighlight.Clear();
             
             IDraggableObjectView draggingObject = _draggableObjects[draggableObjectId];
@@ -176,22 +180,23 @@ namespace StickBlastCase.Game.Views
 
                 GridCellView nearestGridCell = FindNearestGridCell(screenPos);
 
-                if (nearestGridCell != null)
+                if (nearestGridCell == null)
                 {
-                    if (nearestGridCell.Shape == draggingObjectCell.Shape)
-                    {
-                        _cellsToHighlight.Add(nearestGridCell);
-                    }
+                    break;
                 }
+                
+                if (nearestGridCell.Shape != draggingObjectCell.Shape)
+                {
+                    break;
+                }
+                
+                _cellsToHighlight.Add(nearestGridCell);
             }
 
-            Debug.Log("_cellsToHighlight.Count: " + _cellsToHighlight.Count);
-            /*
             for (int i = 0; i < _cellsToHighlight.Count; i++)
             {
-                Debug.Log($"Dragging cell at {i}: {_cellsToHighlight[i].name}");
+                _cellsToHighlight[i].SetHighlighted(true);
             }
-            */
         }
 
         private void OnDeselected(int draggableObjectId)

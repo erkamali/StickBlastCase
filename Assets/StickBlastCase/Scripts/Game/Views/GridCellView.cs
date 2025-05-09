@@ -8,28 +8,38 @@ namespace StickBlastCase.Game.Views
                                 IGridCellView
     {
         //  MEMBERS
-        public int              Col     { get; private set; }
-        public int              Row     { get; private set; }
-        public GridCellShapes   Shape   { get { return _shape; } }
+        public int              Col             { get; private set; }
+        public int              Row             { get; private set; }
+        public GridCellShapes   Shape           { get { return _shape; } }
+        public bool             IsHighlighted   { get; private set; }
         //      Editor
         [SerializeField] private GridCellShapes _shape;
-        [SerializeField] private Image background;
+        [SerializeField] private Image _background;
+        [SerializeField] private GameObject _highlightImage;
         //      Private
+        private Color _baseColor;
         
         //  METHODS
-        public void Initialize(int column, int row, GridCellShapes shape)
+        public void Initialize(int column, int row, GridCellShapes shape, Color color)
         {
             _shape = shape;
+            
+            _baseColor = color;
+            _background.color = _baseColor;
         }
-        
-        public void SetColor(Color color)
+
+        public void SetHighlighted(bool highlighted)
         {
-            background.color = color;
+            if (IsHighlighted == highlighted) return;
+
+            IsHighlighted = highlighted;
+            
+            _highlightImage.SetActive(highlighted);
         }
         
         public void SetFilled(bool filled)
         {
-            background.color = filled ? Color.green : Color.white;
+            _background.color = filled ? Color.green : Color.white;
         }
     }
 }
