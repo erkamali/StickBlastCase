@@ -163,6 +163,11 @@ namespace StickBlastCase.Game.Models
             // Find complete rows
             for (int row = 0; row < GridRowCount; row++)
             {
+                if (row % 2 == 0)
+                {
+                    continue;
+                }
+                
                 bool rowComplete = true;
 
                 for (int col = 0; col < GridColCount; col++)
@@ -182,6 +187,11 @@ namespace StickBlastCase.Game.Models
             // Find complete columns
             for (int col = 0; col < GridColCount; col++)
             {
+                if (col % 2 == 0)
+                {
+                    continue;
+                }
+
                 bool colComplete = true;
 
                 for (int row = 0; row < GridRowCount; row++)

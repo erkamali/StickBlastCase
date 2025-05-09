@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Com.Bit34Games.Director.Mediation;
 using StickBlastCase.Game.Constants;
 using StickBlastCase.Game.Models;
+using UnityEngine;
 
 namespace StickBlastCase.Game.Views
 {
@@ -133,21 +134,28 @@ namespace StickBlastCase.Game.Views
                 List<int> clearedCols = completeRowsAndColumns.Item2;
                 
                 // Clear visuals for affected rows
-                foreach (int row in clearedRows)
+                if (clearedRows.Count > 0)
                 {
-                    for (int col = 0; col < _model.GridColCount; col++)
+                    foreach (int row in clearedRows)
                     {
-                        _view.SetGridCellFilled(row, col, false);
+                        for (int col = 0; col < _model.GridColCount; col++)
+                        {
+                            _view.SetGridCellFilled(col, row, false);
+                        }
                     }
                 }
 
                 // Clear visuals for affected columns
-                foreach (int col in clearedCols)
+                if (clearedCols.Count > 0)
                 {
-                    for (int row = 0; row < _model.GridRowCount; row++)
+                    foreach (int col in clearedCols)
                     {
-                        _view.SetGridCellFilled(row, col, false);
+                        for (int row = 0; row < _model.GridRowCount; row++)
+                        {
+                            _view.SetGridCellFilled(col, row, false);
+                        }
                     }
+                    
                 }
             }
         }

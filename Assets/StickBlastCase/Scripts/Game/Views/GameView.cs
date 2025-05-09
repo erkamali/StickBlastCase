@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Com.Bit34Games.Director.Unity;
+using DG.Tweening;
 using StickBlastCase.Game.Constants;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -90,20 +91,29 @@ namespace StickBlastCase.Game.Views
             float spacing = _cellSize * 2;
             float totalWidth = _draggableObjectCount * spacing;
 
-            RectTransform draggableObjectContainerRectTransform = (RectTransform)_draggableObjectContainer;
-            Rect rect = draggableObjectContainerRectTransform.rect;
+            Rect rect = ((RectTransform)_draggableObjectContainer).rect;
             float startX = (rect.width - totalWidth) / 2f;
+
+            float offscreenX = rect.width + _cellSize * 3;
 
             for (int i = 0; i < _draggableObjectCount; i++)
             {
-                GameObject shapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
+                int random = Random.Range(0, _gameResources.ShapeCount);
+                GameObject shapeGO = Instantiate(_gameResources.GetShapePrefab(random), _draggableObjectContainer);
                 RectTransform rt = shapeGO.GetComponent<RectTransform>();
 
-                float xOffset = startX + i * spacing;
-                Vector2 originalPos = new Vector2(xOffset, 0);
+                float finalX = startX + i * spacing;
+                Vector2 startPos = new Vector2(offscreenX, 0);
+                Vector2 targetPos = new Vector2(finalX, 0);
+
+                rt.anchoredPosition = startPos;
 
                 IDraggableObjectView draggableObjectView = shapeGO.GetComponent<IDraggableObjectView>();
-                draggableObjectView.Initialize(i, _cellSize, originalPos, OnSelected, OnDragged, OnDeselected);
+                draggableObjectView.Initialize(i, _cellSize, targetPos, OnSelected, OnDragged, OnDeselected);
+
+                rt.DOAnchorPos(targetPos, 1f)
+                    .SetEase(Ease.OutExpo)
+                    .SetDelay(i * 0.05f);
 
                 _draggableObjects.Add(i, draggableObjectView);
             }
@@ -163,6 +173,11 @@ namespace StickBlastCase.Game.Views
             }
         }
 
+        public void SetGridCellHighlighted(int col, int row, bool highlighted)
+        {
+            _gridCells[col, row].SetHighlighted(highlighted);
+        }
+
         public void SetGridCellFilled(int col, int row, bool filled)
         {
             _gridCells[col, row].SetFilled(filled);
@@ -180,6 +195,13 @@ namespace StickBlastCase.Game.Views
             IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
             draggableObject.EndDragAndPlace(_cellsToHighlight);
             draggableObject.transform.SetParent(_gridContainer.transform);
+            
+            
+            _draggableObjects.Remove(objectId);
+            if (_draggableObjects.Count <= 0)
+            {
+                AddDraggableObjects();
+            }
         }
 
         public void CancelObjectDrag()

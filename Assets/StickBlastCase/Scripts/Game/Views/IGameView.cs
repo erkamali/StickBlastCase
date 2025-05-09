@@ -15,6 +15,7 @@ namespace StickBlastCase.Game.Views
         void EndObjectDrag(int draggableObjectId);
         void CancelObjectDrag();
 
+        void SetGridCellHighlighted(int col, int row, bool highlighted);
         void SetGridCellFilled(int col, int row, bool filled);
     }
 }

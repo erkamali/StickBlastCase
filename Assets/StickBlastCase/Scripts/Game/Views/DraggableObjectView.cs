@@ -32,7 +32,7 @@ namespace StickBlastCase.Game.Views
             
             _originalPos = originalPos;
             _rectTransform = GetComponent<RectTransform>();
-            _rectTransform.anchoredPosition = _originalPos;
+            //_rectTransform.anchoredPosition = _originalPos;
                 
             _onSelect   = onSelected;
             _onDrag     = onDragged;

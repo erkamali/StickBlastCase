@@ -12,10 +12,12 @@ namespace StickBlastCase.Game.Views
         public int              Row             { get; private set; }
         public GridCellShapes   Shape           { get { return _shape; } }
         public bool             IsHighlighted   { get; private set; }
+        public bool             IsFilled        { get; private set; }
         //      Editor
         [SerializeField] private GridCellShapes _shape;
         [SerializeField] private Image _background;
         [SerializeField] private GameObject _highlightImage;
+        [SerializeField] private GameObject _filledImage;
         //      Private
         private Color _baseColor;
         
@@ -28,6 +30,9 @@ namespace StickBlastCase.Game.Views
             
             _baseColor = color;
             _background.color = _baseColor;
+            
+            IsHighlighted = false;
+            IsFilled = false;
         }
 
         public void SetHighlighted(bool highlighted)
@@ -41,7 +46,16 @@ namespace StickBlastCase.Game.Views
         
         public void SetFilled(bool filled)
         {
-            _background.color = filled ? Color.green : Color.white;
+            if (IsFilled == filled) return;
+
+            IsFilled = filled;
+            
+            _filledImage.SetActive(filled);
+
+            if (filled)
+            {
+                SetHighlighted(false);
+            }
         }
     }
 }

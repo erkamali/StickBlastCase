@@ -18,6 +18,7 @@ namespace StickBlastCase.Game
         //  METHODS
         public Color        GetColor(int color)             { return _colors[color]; }
         public GameObject   GetShapePrefab(int index)       { return _shapePrefabs[index]; }
+        public int          ShapeCount                      { get { return _shapePrefabs.Count; } }
         public GameObject   GetGridCellPrefab(int index)    { return _gridCellPrefabs[index]; }
     }
 }    
