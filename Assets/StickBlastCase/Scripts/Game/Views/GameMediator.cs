@@ -100,7 +100,6 @@ namespace StickBlastCase.Game.Views
 
         private void OnDraggableObjectDeselected(int draggableObjectId)
         {
-            UnityEngine.Debug.Log("_highlightedCells.Count: " + _highlightedCells.Count);
             if (_highlightedCells.Count <= 0)
             {
                 ClearHighlightedCells();
@@ -116,6 +115,18 @@ namespace StickBlastCase.Game.Views
             
                 ClearHighlightedCells();
                 _view.EndObjectDrag(draggableObjectId);
+
+                List<GridCellData> cornersToBeFilled = _model.GetCornerCellsToBeFilled();
+                foreach (GridCellData corner in cornersToBeFilled)
+                {
+                    _view.SetGridCellFilled(corner.Col, corner.Row, corner.IsFilled);
+                }
+                
+                List<GridCellData> squaresToBeFilled = _model.GetSquareCellsToBeFilled();
+                foreach (GridCellData square in squaresToBeFilled)
+                {
+                    _view.SetGridCellFilled(square.Col, square.Row, square.IsFilled);
+                }
             }
         }
 
@@ -125,6 +136,7 @@ namespace StickBlastCase.Game.Views
         {
             _highlightedCells.Clear();
         }
+        
         public bool CheckCellUnderneath(int nearestCellCol, int nearestCellRow, GridCellShapes draggingObjectCellShape)
         {
             IGridCellData nearestCellData = _model.GetGridCell(nearestCellCol, nearestCellRow);

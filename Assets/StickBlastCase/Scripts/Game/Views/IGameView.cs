@@ -14,5 +14,7 @@ namespace StickBlastCase.Game.Views
         void StartObjectDrag(int draggableObjectId);
         void EndObjectDrag(int draggableObjectId);
         void CancelObjectDrag();
+
+        void SetGridCellFilled(int col, int row, bool filled);
     }
 }

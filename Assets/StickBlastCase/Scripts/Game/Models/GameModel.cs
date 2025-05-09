@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using StickBlastCase.Game.Constants;
 
 namespace StickBlastCase.Game.Models
@@ -55,6 +56,96 @@ namespace StickBlastCase.Game.Models
         public void SetGridCellFilled(IGridCellData gridCell, bool filled)
         {
             gridCell.SetFilled(filled);
+        }
+        
+        public List<GridCellData> GetCornerCellsToBeFilled()
+        {
+            List<GridCellData> cornersToBeFilled = new List<GridCellData>();
+            
+            for (int c = 0; c < GridColCount; c++)
+            {
+                for (int r = 0; r < GridRowCount; r++)
+                {
+                    GridCellData cell = _gridCells[c, r];
+
+                    if (cell.Shape != GridCellShapes.Corner)
+                    {
+                        continue;
+                    }
+
+                    if (cell.IsFilled)
+                    {
+                        continue;
+                    }
+
+                    // Check 4 orthogonal neighbors
+                    bool hasFilledNeighbor = false;
+
+                    // Up
+                    if (r > 0 && _gridCells[c, r-1].IsFilled)
+                        hasFilledNeighbor = true;
+                    // Down
+                    else if (r < GridRowCount - 1 && _gridCells[c, r + 1].IsFilled)
+                        hasFilledNeighbor = true;
+                    // Left
+                    else if (c > 0 && _gridCells[c - 1, r].IsFilled)
+                        hasFilledNeighbor = true;
+                    // Right
+                    else if (c < GridColCount - 1 && _gridCells[c + 1, r].IsFilled)
+                        hasFilledNeighbor = true;
+
+                    if (hasFilledNeighbor)
+                    {
+                        cell.SetFilled(true);
+                        cornersToBeFilled.Add(cell);
+                    }
+                }
+            }
+
+            return cornersToBeFilled;
+        }
+        
+        public List<GridCellData> GetSquareCellsToBeFilled()
+        {
+            List<GridCellData> squaresToBeFilled = new List<GridCellData>();
+            
+            for (int c = 0; c < GridColCount; c++)
+            {
+                for (int r = 0; r < GridRowCount; r++)
+                {
+                    GridCellData cell = _gridCells[c, r];
+
+                    if (cell.Shape != GridCellShapes.Square)
+                    {
+                        continue;
+                    }
+
+                    if (cell.IsFilled)
+                    {
+                        continue;
+                    }
+
+                    // Up
+                    bool upperCellFilled = r > 0 && _gridCells[c, r-1].IsFilled;
+                    
+                    // Down
+                    bool lowerCellFilled = r < GridRowCount - 1 && _gridCells[c, r + 1].IsFilled;
+                    
+                    // Left
+                    bool leftCellFilled = c > 0 && _gridCells[c - 1, r].IsFilled;
+                    
+                    // Right
+                    bool rightCellFilled = c < GridColCount - 1 && _gridCells[c + 1, r].IsFilled;
+
+                    if (upperCellFilled && lowerCellFilled && leftCellFilled && rightCellFilled)
+                    {
+                        cell.SetFilled(true);
+                        squaresToBeFilled.Add(cell);
+                    }
+                }
+            }
+
+            return squaresToBeFilled;
         }
     }
 }

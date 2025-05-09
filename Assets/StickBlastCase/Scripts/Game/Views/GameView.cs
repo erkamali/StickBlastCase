@@ -162,6 +162,11 @@ namespace StickBlastCase.Game.Views
                 ViewEvents.DeselectDraggableObject(draggableObjectId);
             }
         }
+
+        public void SetGridCellFilled(int col, int row, bool filled)
+        {
+            _gridCells[col, row].SetFilled(filled);
+        }
         
         public void StartObjectDrag(int objectId)
         {

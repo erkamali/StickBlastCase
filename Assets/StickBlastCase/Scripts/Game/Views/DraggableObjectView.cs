@@ -67,7 +67,7 @@ namespace StickBlastCase.Game.Views
 
         public void StartDrag()
         {
-            UnityEngine.Debug.Log("hop");
+            
         }
 
         public void OnDrag(PointerEventData eventData)
