@@ -15,7 +15,7 @@ namespace StickBlastCase.Game.Views
         void StartDrag();
         void UpdateDrag(Vector3 screenPosition);
         void CancelDrag();
-        void EndDragAndPlace(IGridCellView gridCell);
+        void EndDragAndPlace(List<GridCellView> targetGridCells);
         IGridCellView GetCell(int cellIndex);
         List<GridCellView> GetCells();
     }

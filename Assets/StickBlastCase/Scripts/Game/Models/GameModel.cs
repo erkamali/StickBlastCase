@@ -51,5 +51,10 @@ namespace StickBlastCase.Game.Models
         {
             return _gridCells[col, row];
         }
+
+        public void SetGridCellFilled(IGridCellData gridCell, bool filled)
+        {
+            gridCell.SetFilled(filled);
+        }
     }
 }

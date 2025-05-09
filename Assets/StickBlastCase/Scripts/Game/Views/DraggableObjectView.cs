@@ -46,13 +46,18 @@ namespace StickBlastCase.Game.Views
             _rectTransform.anchoredPosition = _originalPos;
         }
         
-        public void EndDragAndPlace(IGridCellView gridCell)
+        public void EndDragAndPlace(List<GridCellView> targetGridCells)
         {
-            _rectTransform.SetParent(gridCell.transform, worldPositionStays: false);
+            RectTransform draggableRect = GetComponent<RectTransform>();
+            RectTransform childAnchorRect = _cells[0].GetComponent<RectTransform>();
+            RectTransform targetAnchorRect = targetGridCells[0].GetComponent<RectTransform>();
 
-            // Animate snapping to center of the gap
-            //rt.DOAnchorPos(Vector2.zero, 0.1f).SetEase(Ease.OutQuad)
-            //    .OnComplete(() => _onPlaceCompleted?.Invoke(/* optionally gap.Col, gap.Row */));
+            Vector3 childWorldPos = childAnchorRect.position;
+            Vector3 targetWorldPos = targetAnchorRect.position;
+
+            Vector3 offset = targetWorldPos - childWorldPos;
+
+            draggableRect.position += offset;
         }
 
         public void OnPointerDown(PointerEventData eventData)

@@ -87,15 +87,24 @@ namespace StickBlastCase.Game.Views
 
         public void AddDraggableObjects()
         {
-            _draggableObjectContainer.transform.localPosition = Vector2.down * _cellSize * 5;
-            float midIndex = (_draggableObjectCount - 1) / 2;
+            float spacing = _cellSize * 2;
+            float totalWidth = _draggableObjectCount * spacing;
+
+            RectTransform draggableObjectContainerRectTransform = (RectTransform)_draggableObjectContainer;
+            Rect rect = draggableObjectContainerRectTransform.rect;
+            float startX = (rect.width - totalWidth) / 2f;
+
             for (int i = 0; i < _draggableObjectCount; i++)
             {
-                GameObject IShapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
-                RectTransform rt = IShapeGO.GetComponent<RectTransform>();
-                Vector2 originalPos = Vector2.right * _cellSize * 2 * (i - midIndex);
-                IDraggableObjectView draggableObjectView = IShapeGO.GetComponent<IDraggableObjectView>();
+                GameObject shapeGO = Instantiate(_gameResources.GetShapePrefab(i), _draggableObjectContainer);
+                RectTransform rt = shapeGO.GetComponent<RectTransform>();
+
+                float xOffset = startX + i * spacing;
+                Vector2 originalPos = new Vector2(xOffset, 0);
+
+                IDraggableObjectView draggableObjectView = shapeGO.GetComponent<IDraggableObjectView>();
                 draggableObjectView.Initialize(i, _cellSize, originalPos, OnSelected, OnDragged, OnDeselected);
+
                 _draggableObjects.Add(i, draggableObjectView);
             }
         }
@@ -112,6 +121,7 @@ namespace StickBlastCase.Game.Views
                 gridCell.SetHighlighted(false);
             }
             _cellsToHighlight.Clear();
+            _gameMediator.ClearHighlightedCells();
             
             IDraggableObjectView draggingObject = _draggableObjects[draggableObjectId];
             foreach (GridCellView draggingObjectCell in draggingObject.GetCells())
@@ -163,7 +173,8 @@ namespace StickBlastCase.Game.Views
         public void EndObjectDrag(int objectId)
         {
             IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
-            draggableObject.CancelDrag();
+            draggableObject.EndDragAndPlace(_cellsToHighlight);
+            draggableObject.transform.SetParent(_gridContainer.transform);
         }
 
         public void CancelObjectDrag()
@@ -171,18 +182,6 @@ namespace StickBlastCase.Game.Views
             IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
             draggableObject.CancelDrag();
             _draggingObjectId = -1;
-        }
-
-        public void EndPileDragAndStartPlace()
-        {
-            IDraggableObjectView draggableObject = _draggableObjects[_draggingObjectId];
-            //draggableObject.EndDragAndPlace();
-            _draggingObjectId = -1;
-        }
-
-        private int EncodeCoordinates(int col, int row)
-        {
-            return (_colCount * row) + col;
         }
         
         private GridCellView FindNearestGridCell(Vector2 screenPosition)
@@ -194,7 +193,6 @@ namespace StickBlastCase.Game.Views
             {
                 RectTransform cellRect = gridCell.transform.gameObject.GetComponent<RectTransform>();
 
-                // Convert screen point to local position relative to the cell's parent
                 Vector2 localPoint;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     cellRect.parent as RectTransform,

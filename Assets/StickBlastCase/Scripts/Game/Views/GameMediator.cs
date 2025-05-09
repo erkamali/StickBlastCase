@@ -13,7 +13,7 @@ namespace StickBlastCase.Game.Views
         [Inject] private IGameView  _view;
         [Inject] private GameModel  _model;
         //      Private
-        private Dictionary<int, DraggableObjectShapes> _objectShapes;
+        private List<IGridCellData> _highlightedCells;
         
         //  METHODS
 
@@ -23,7 +23,7 @@ namespace StickBlastCase.Game.Views
         {
             _view.Initialize(this, 3);
             
-            _objectShapes = new Dictionary<int, DraggableObjectShapes>();
+            _highlightedCells = new List<IGridCellData>();
 
             AddListeners();
         }
@@ -41,7 +41,6 @@ namespace StickBlastCase.Game.Views
 
             ViewEvents.OnSelectDraggableObject      += OnDraggableObjectSelected;
             ViewEvents.OnDeselectDraggableObject    += OnDraggableObjectDeselected;
-            ViewEvents.OnCancelDraggableObjectDrag  += OnDraggableObjectDragCancelled;
         }
 
         private void RemoveListeners()
@@ -50,7 +49,6 @@ namespace StickBlastCase.Game.Views
 
             ViewEvents.OnSelectDraggableObject      -= OnDraggableObjectSelected;
             ViewEvents.OnDeselectDraggableObject    -= OnDraggableObjectDeselected;
-            ViewEvents.OnCancelDraggableObjectDrag  -= OnDraggableObjectDragCancelled;
         }
 
         private void OnGameStarted()
@@ -102,16 +100,31 @@ namespace StickBlastCase.Game.Views
 
         private void OnDraggableObjectDeselected(int draggableObjectId)
         {
-            _view.EndObjectDrag(draggableObjectId);
-        }
-
-        private void OnDraggableObjectDragCancelled()
-        {
-            _view.CancelObjectDrag();
+            UnityEngine.Debug.Log("_highlightedCells.Count: " + _highlightedCells.Count);
+            if (_highlightedCells.Count <= 0)
+            {
+                ClearHighlightedCells();
+                _view.CancelObjectDrag();
+            }
+            else
+            {
+                for (int i = 0; i < _highlightedCells.Count; i++)
+                {
+                    IGridCellData highlightedCell = _highlightedCells[i];
+                    _model.SetGridCellFilled(highlightedCell, true);
+                }
+            
+                ClearHighlightedCells();
+                _view.EndObjectDrag(draggableObjectId);
+            }
         }
 
 #region IGameMediator implementations
 
+        public void ClearHighlightedCells()
+        {
+            _highlightedCells.Clear();
+        }
         public bool CheckCellUnderneath(int nearestCellCol, int nearestCellRow, GridCellShapes draggingObjectCellShape)
         {
             IGridCellData nearestCellData = _model.GetGridCell(nearestCellCol, nearestCellRow);
@@ -125,6 +138,7 @@ namespace StickBlastCase.Game.Views
                 return false;
             }
 
+            _highlightedCells.Add(nearestCellData);
             return true;
         }
 
