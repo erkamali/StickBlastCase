@@ -78,21 +78,28 @@ namespace StickBlastCase.Game.Models
                         continue;
                     }
 
-                    // Check 4 orthogonal neighbors
                     bool hasFilledNeighbor = false;
-
+                    
                     // Up
-                    if (r > 0 && _gridCells[c, r-1].IsFilled)
+                    if (r > 0 && _gridCells[c, r - 1].IsFilled)
+                    {
                         hasFilledNeighbor = true;
+                    }
                     // Down
                     else if (r < GridRowCount - 1 && _gridCells[c, r + 1].IsFilled)
+                    {
                         hasFilledNeighbor = true;
+                    }
                     // Left
                     else if (c > 0 && _gridCells[c - 1, r].IsFilled)
+                    {
                         hasFilledNeighbor = true;
+                    }
                     // Right
                     else if (c < GridColCount - 1 && _gridCells[c + 1, r].IsFilled)
+                    {
                         hasFilledNeighbor = true;
+                    }
 
                     if (hasFilledNeighbor)
                     {
@@ -146,6 +153,72 @@ namespace StickBlastCase.Game.Models
             }
 
             return squaresToBeFilled;
+        }
+        
+        public (List<int> completeRows, List<int> completeCols) ClearCompleteRowsAndColumns()
+        {
+            List<int> completeRows = new List<int>();
+            List<int> completeCols = new List<int>();
+
+            // Find complete rows
+            for (int row = 0; row < GridRowCount; row++)
+            {
+                bool rowComplete = true;
+
+                for (int col = 0; col < GridColCount; col++)
+                {
+                    IGridCellData cell = _gridCells[col, row];
+                    if (cell.Shape == GridCellShapes.Square && !cell.IsFilled)
+                    {
+                        rowComplete = false;
+                        break;
+                    }
+                }
+
+                if (rowComplete)
+                    completeRows.Add(row);
+            }
+
+            // Find complete columns
+            for (int col = 0; col < GridColCount; col++)
+            {
+                bool colComplete = true;
+
+                for (int row = 0; row < GridRowCount; row++)
+                {
+                    IGridCellData cell = _gridCells[col, row];
+                    if (cell.Shape == GridCellShapes.Square && !cell.IsFilled)
+                    {
+                        colComplete = false;
+                        break;
+                    }
+                }
+
+                if (colComplete)
+                    completeCols.Add(col);
+            }
+
+            // Clear filled squares in complete rows
+            foreach (int row in completeRows)
+            {
+                for (int col = 0; col < GridColCount; col++)
+                {
+                    IGridCellData cell = _gridCells[col, row];
+                    cell.SetFilled(false);
+                }
+            }
+
+            // Clear filled squares in complete columns
+            foreach (int col in completeCols)
+            {
+                for (int row = 0; row < GridRowCount; row++)
+                {
+                    IGridCellData cell = _gridCells[col, row];
+                    cell.SetFilled(false);
+                }
+            }
+
+            return (completeRows, completeCols);
         }
     }
 }

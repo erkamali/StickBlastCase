@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Com.Bit34Games.Director.Mediation;
 using StickBlastCase.Game.Constants;
 using StickBlastCase.Game.Models;
-using UnityEngine;
 
 namespace StickBlastCase.Game.Views
 {
@@ -126,6 +126,28 @@ namespace StickBlastCase.Game.Views
                 foreach (GridCellData square in squaresToBeFilled)
                 {
                     _view.SetGridCellFilled(square.Col, square.Row, square.IsFilled);
+                }
+                
+                ValueTuple<List<int>, List<int>> completeRowsAndColumns = _model.ClearCompleteRowsAndColumns();
+                List<int> clearedRows = completeRowsAndColumns.Item1;
+                List<int> clearedCols = completeRowsAndColumns.Item2;
+                
+                // Clear visuals for affected rows
+                foreach (int row in clearedRows)
+                {
+                    for (int col = 0; col < _model.GridColCount; col++)
+                    {
+                        _view.SetGridCellFilled(row, col, false);
+                    }
+                }
+
+                // Clear visuals for affected columns
+                foreach (int col in clearedCols)
+                {
+                    for (int row = 0; row < _model.GridRowCount; row++)
+                    {
+                        _view.SetGridCellFilled(row, col, false);
+                    }
                 }
             }
         }
